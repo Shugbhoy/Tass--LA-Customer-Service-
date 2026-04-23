@@ -41,6 +41,7 @@ const MODULES = [
   { id: "mjs",        label: "🌐 MyJobScotland",   icon: "🌐" },
   { id: "cv",         label: "📄 CV Builder",      icon: "📄" },
   { id: "wordtest",   label: "✏️ Language",        icon: "✏️" },
+  { id: "star",       label: "⭐ STAR Method",      icon: "⭐" },
   { id: "interview",  label: "🎤 Interview",       icon: "🎤" },
   { id: "casestudies",label: "📚 Case Studies",    icon: "📚" },
   { id: "coach",      label: "🤖 AI Coach",        icon: "🤖" },
@@ -206,15 +207,15 @@ const LANG_QUESTIONS = [
   },
   {
     category: "grammar",
-    question: "Choose the sentence that avoids a dangling modifier.",
+    question: "Which sentence is grammatically correct?",
     options: [
-      "Having reviewed your case, a decision has been made.",
-      "Having reviewed your case, we have made a decision.",
-      "A decision has been made, having reviewed your case.",
-      "Your case, having been reviewed, a decision was made."
+      "The team have submitted their reports, which was reviewed by the manager.",
+      "The team has submitted their reports, and the manager has reviewed them.",
+      "The team submitted their reports which the manager have reviewed.",
+      "The team have submitted their reports, the manager reviewed it."
     ],
     correct: 1,
-    explain: "'Having reviewed your case, we have made a decision' — the subject 'we' immediately follows the opening clause, making clear who did the reviewing. In Option A, 'a decision' appears to have reviewed the case, which is a dangling modifier — a common error in formal writing."
+    explain: "'The team has submitted their reports, and the manager has reviewed them' is correct — consistent tense, correct pronoun agreement ('them' refers back to 'reports'), and two clear independent clauses joined with 'and'. The other options mix singular and plural verbs incorrectly or use the wrong pronoun."
   },
   {
     category: "grammar",
@@ -370,6 +371,12 @@ const CV_SECTIONS = {
     prompt: "List 4–6 skills, each with a short evidence statement. Don't just list words.",
     good: "Communication: Confidently communicated with library visitors of all ages, adapting my style to suit each individual.\nOrganisation: Managed weekly stock-checking tasks independently, completing returns and filing accurately.\nDigital Skills: Proficient in Microsoft Word, Excel and Outlook; trained other volunteers to use the library catalogue system.\nTeamwork: Collaborated with a team of 8 volunteers to run community events attended by 100+ residents.",
     bad: "Good communication. Team player. Organised. IT skills. Hard working. Fast learner.",
+  },
+  extracurricular: {
+    label: "Activities & Interests",
+    prompt: "Don't just list hobbies — extract the skill, the responsibility and the result from each activity. Every entry should tell the employer something useful about you.",
+    good: "Duke of Edinburgh Award — Bronze (completed 2023)\nPhysical: Running — completed three 5k events over the programme. Voluntary: Supported Westfield Community Food Bank for 13 weeks, assisting with family registrations and weekly parcel assembly. Skill: First aid — completed a 6-hour course and received a basic certification.\n\nPeer Mentor — St Andrews Academy (2022–present)\nTrained as a peer mentor in S5. Provide one-to-one support to S2 students experiencing transition difficulties. Managed a caseload of 4 students with weekly check-ins. Reported progress to the guidance team at the end of each term.\n\nNetball — Westfield Community Club (2020–present)\nPlay in the centre position. Train every Tuesday and compete on Saturdays. Vice-captain of the under-18 squad — responsible for leading warm-ups and communicating between players and the coaching team during matches.",
+    bad: "Hobbies and interests: I like going out with friends, watching Netflix and scrolling social media. I also play netball sometimes and I have done a bit of volunteering.",
   },
 };
 
@@ -818,13 +825,148 @@ Keep responses focused — users are on mobile. Use short paragraphs and occasio
 }
 
 // ─── Welcome ──────────────────────────────────────────────────────────────────
+// ─── STAR Module ──────────────────────────────────────────────────────────────
+function STARModule() {
+  const [activeEx, setActiveEx] = useState(0);
+  const [tier, setTier] = useState("strong");
+  const [revealed, setRevealed] = useState({});
+
+  const examples = [
+    {
+      label: "Customer service",
+      question: "Tell me about a time you provided excellent customer service.",
+      weak: "I helped a customer at my part-time job and they were really happy with me. I always try to be friendly and helpful.",
+      good: "At the library where I volunteer, a regular visitor became upset because the printer wasn't working and she needed to print an urgent form. I apologised, walked her through the settings, and when it still failed I printed it from the desk computer for her. She left thanking me.",
+      strong: "At Westfield Library where I volunteer on Saturdays, a regular visitor who uses a wheelchair arrived and found her usual accessible table was occupied. I apologised and quickly rearranged a nearby area so she could sit comfortably. I brought her a cup of tea while she waited and personally helped her with the form she needed to print. She came back the following week specifically to thank my supervisor for the service I had provided. My supervisor mentioned it in our next team meeting as an example of going beyond the basic task.",
+      why: "The strong answer uses 'I' throughout, gives specific context (wheelchair, rearranging the area), shows initiative and empathy, and ends with external validation. It demonstrates genuine service beyond the minimum — which is exactly what a council employer wants to see."
+    },
+    {
+      label: "Difficult situation",
+      question: "Describe a time you dealt with a difficult situation or person.",
+      weak: "I once had a difficult customer at a shop. I stayed calm and dealt with it and they eventually left happy.",
+      good: "A resident came into the community centre where I volunteer very distressed because they had been turned away from another service. I listened to them, explained what we could offer, and helped them register. They left with what they needed.",
+      strong: "At the community food bank where I volunteer, a mother arrived in tears having been told by another charity that her family didn't qualify for their service. She had her three young children with her. My role was to register new families and assess eligibility. I took her to a quieter area so she wasn't distressed in front of the queue, listened without interrupting, and confirmed she qualified immediately. I processed her registration and assembled her weekly parcel myself rather than leaving it to the general queue. I also gave her the contact details for a housing support service she hadn't been aware of. She came back the following week and asked to thank me by name.",
+      why: "The strong answer shows emotional intelligence (moving her to a quieter area), active listening, initiative (the housing referral) and a concrete measurable outcome. It reads as a genuine experience rather than a constructed answer."
+    },
+    {
+      label: "Teamwork",
+      question: "Give an example of working effectively as part of a team.",
+      weak: "I work well in a team. I get on with most people and always do my share of the work.",
+      good: "In a school group project I took responsibility for the research section. When one team member fell behind I helped them with their part so we could submit on time. We got a good grade.",
+      strong: "During a school enterprise project, our team of five was tasked with designing and pitching a community service idea. I took on the role of coordinating the research section and managing our shared document so everyone was working from the same version. When one team member fell ill two days before the presentation, I redistributed the remaining tasks, stayed after school for two evenings to compensate, and we still submitted on time. Our pitch was selected as one of three to present to the school. My specific contribution — the research and the coordination — was mentioned by the teacher in her written feedback.",
+      why: "The strong answer specifies the role, shows proactive problem-solving when things went wrong, gives a measurable outcome (one of three selected), and ends with external validation. Using 'I' throughout makes the individual contribution clear."
+    },
+    {
+      label: "Mistake & learning",
+      question: "Tell me about a time you made a mistake and what you learned from it.",
+      weak: "I try not to make mistakes. I'm quite careful. But if I do I just try to fix it and move on.",
+      good: "I once sent an email to the wrong person at my volunteering role. I told my supervisor straight away rather than hoping no one would notice. We were able to contact the recipient and explain. Since then I always double-check the 'to' field before sending.",
+      strong: "During a community event I was helping to organise, I accidentally double-booked the main hall for two groups on the same Saturday. I only realised three days before the event when both groups confirmed attendance. Rather than waiting, I contacted the centre manager immediately, explained what had happened and took responsibility. We agreed to move one group to the smaller room and I contacted both organisers personally to explain the change and apologise. Both events went ahead without significant disruption. My manager told me afterwards that the way I'd handled it — reporting immediately and helping to solve it — showed more professionalism than avoiding it would have. I now use a shared digital calendar for all bookings.",
+      why: "The strong answer is honest about the mistake, shows immediate accountability, demonstrates problem-solving under pressure, and ends with a concrete lesson that changed behaviour. The manager's feedback adds external credibility."
+    },
+  ];
+
+  const ex = examples[activeEx];
+  const tierColors = { weak: "#C0392B", good: "#D97706", strong: "#1A6B3A" };
+  const tierBg = { weak: "#FEF2F2", good: "#FFFBEB", strong: "#F0FDF4" };
+  const tierBorder = { weak: "#FECACA", good: "#FCD34D", strong: "#BBF7D0" };
+
+  return (
+    <div>
+      <div style={{ background: "#F0F8FF", borderLeft: `4px solid ${TEAL}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+        <p style={{ color: TEAL, fontWeight: 700, fontSize: 13, margin: "0 0 4px" }}>The STAR method — your answer framework</p>
+        <p style={{ color: "#2D5A8A", fontSize: 13, lineHeight: 1.65, margin: 0 }}>STAR stands for <strong>Situation · Task · Action · Result</strong>. It is the most widely used interview answer structure in public sector recruitment. Councils, NHS boards and Scottish Government all train their interview panels to score against competencies — and STAR gives you a structure that maps directly onto how they score you.</p>
+      </div>
+
+      {/* The four elements */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+        {[
+          { letter: "S", word: "Situation", desc: "Set the scene briefly. Where were you? When? What was happening?" },
+          { letter: "T", word: "Task", desc: "What was your specific responsibility in that situation?" },
+          { letter: "A", word: "Action", desc: "What did YOU do? Use 'I' not 'we'. Be specific about your actions." },
+          { letter: "R", word: "Result", desc: "What happened as a result? Quantify if you can. What did you learn?" },
+        ].map((item, i) => (
+          <div key={i} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, padding: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+            <div style={{ width: 34, height: 34, borderRadius: 99, background: TEAL, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, marginBottom: 8 }}>{item.letter}</div>
+            <p style={{ color: NAVY, fontWeight: 700, fontSize: 14, margin: "0 0 4px" }}>{item.word}</p>
+            <p style={{ color: "#666", fontSize: 12, lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: "#FFF8E7", border: `1px solid #FCD34D`, borderLeft: `4px solid #D97706`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+        <p style={{ color: "#6B4A00", fontWeight: 700, fontSize: 13, margin: "0 0 4px" }}>The most important rule</p>
+        <p style={{ color: "#6B4A00", fontSize: 13, lineHeight: 1.65, margin: 0 }}>Use <strong>'I'</strong>, not <strong>'we'</strong>. Your panel is assessing you — not your group, team or class. Even in team situations, describe specifically what YOU did and what difference YOUR actions made. Candidates who answer with 'we' throughout give the panel nothing to score.</p>
+      </div>
+
+      {/* Worked examples */}
+      <p style={{ color: NAVY, fontWeight: 800, fontSize: 15, margin: "0 0 12px" }}>Worked examples — three tiers</p>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {examples.map((e, i) => (
+          <button key={i} onClick={() => { setActiveEx(i); setTier("strong"); }}
+            style={{ background: activeEx === i ? NAVY : "#F0F4FF", color: activeEx === i ? "#fff" : NAVY, border: "none", borderRadius: 20, padding: "7px 14px", fontSize: 12, fontWeight: activeEx === i ? 700 : 400, cursor: "pointer", fontFamily: "inherit" }}>
+            {e.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ background: "#F8FAFC", borderRadius: 12, padding: 14, marginBottom: 12, border: "1px solid #E2E8F0" }}>
+        <p style={{ color: "#888", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 6px" }}>Interview question</p>
+        <p style={{ color: NAVY, fontWeight: 700, fontSize: 15, margin: 0 }}>"{ex.question}"</p>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        {["weak", "good", "strong"].map(t => (
+          <button key={t} onClick={() => setTier(t)}
+            style={{ flex: 1, padding: "9px 6px", background: tier === t ? tierColors[t] : "#fff", border: `2px solid ${tierColors[t]}`, color: tier === t ? "#fff" : tierColors[t], borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+            {t === "weak" ? "✗ Weak" : t === "good" ? "◎ Good" : "✓ Strong"}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ background: tierBg[tier], border: `1px solid ${tierBorder[tier]}`, borderRadius: 12, padding: 16, marginBottom: 12 }}>
+        <p style={{ color: tierColors[tier], fontWeight: 700, fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 8px" }}>
+          {tier === "weak" ? "✗ Weak answer" : tier === "good" ? "◎ Good answer" : "✓ Strong answer"}
+        </p>
+        <p style={{ color: "#1A1A2E", fontSize: 14, lineHeight: 1.75, margin: 0, fontStyle: "italic" }}>"{ex[tier]}"</p>
+      </div>
+
+      <div style={{ background: "#F0F8FF", borderLeft: `3px solid ${TEAL}`, borderRadius: 8, padding: 12, marginBottom: 20 }}>
+        <p style={{ color: TEAL, fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 4px" }}>Coach commentary</p>
+        <p style={{ color: "#2D5A8A", fontSize: 13, lineHeight: 1.65, margin: 0 }}>{ex.why}</p>
+      </div>
+
+      {/* Build your own */}
+      <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 14, padding: 20 }}>
+        <p style={{ color: TEAL, fontWeight: 700, fontSize: 14, margin: "0 0 10px" }}>✍️ Build your own STAR answer</p>
+        <p style={{ color: "#666", fontSize: 13, margin: "0 0 12px" }}>Choose a question from the Interview tab and draft your answer section by section below. Then paste the full answer into the AI Coach for feedback.</p>
+        {[
+          { label: "S — Situation", placeholder: "Where were you? When? What was happening?" },
+          { label: "T — Task", placeholder: "What was your specific responsibility?" },
+          { label: "A — Action", placeholder: "What did YOU do? (Use 'I', not 'we')" },
+          { label: "R — Result", placeholder: "What happened? What did you learn? Can you quantify it?" },
+        ].map((field, i) => (
+          <div key={i} style={{ marginBottom: 10 }}>
+            <p style={{ color: NAVY, fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>{field.label}</p>
+            <textarea rows={2} placeholder={field.placeholder}
+              style={{ width: "100%", background: "#fff", border: "1px solid #E2E8F0", borderRadius: 8, padding: 10, color: "#333", fontSize: 13, fontFamily: "inherit", resize: "none", boxSizing: "border-box" }} />
+          </div>
+        ))}
+        <p style={{ color: "#999", fontSize: 12, margin: "4px 0 0" }}>💡 Paste your completed answer into the AI Coach tab for personalised feedback.</p>
+      </div>
+    </div>
+  );
+}
+
 function WelcomeModule({ setTab }) {
   const steps = [
     { icon: "🔍", label: "Research",     desc: "Understand local authorities and what they look for",            tab: "research" },
     { icon: "🌐", label: "MyJobScotland", desc: "Navigate the portal, write your supporting statement and more", tab: "mjs" },
     { icon: "📄", label: "CV Builder",   desc: "Write a strong CV with good/bad examples",                      tab: "cv" },
-    { icon: "✏️", label: "Language",    desc: "Spelling, punctuation, pronunciation & formal language",  tab: "wordtest" },
-    { icon: "🎤", label: "Interview",    desc: "Practise questions with model answers",               tab: "interview" },
+    { icon: "✏️", label: "Language",     desc: "Spelling, punctuation, pronunciation & formal language",  tab: "wordtest" },
+    { icon: "⭐", label: "STAR Method",  desc: "Structure your interview answers with worked examples",    tab: "star" },
+    { icon: "🎤", label: "Interview",    desc: "Practise questions with model answers",                    tab: "interview" },
     { icon: "📚", label: "Case Studies", desc: "Learn from real young people's journeys",             tab: "casestudies" },
     { icon: "🤖", label: "AI Coach",     desc: "Get personal feedback on your applications",          tab: "coach" },
   ];
@@ -1093,6 +1235,7 @@ export default function App() {
         {tab === "mjs"         && <MJSModule />}
         {tab === "cv"          && <CVModule />}
         {tab === "wordtest"    && <WordTestModule />}
+        {tab === "star"        && <STARModule />}
         {tab === "interview"   && <InterviewModule />}
         {tab === "casestudies" && <CaseStudiesModule />}
         {tab === "coach"       && <AICoachModule />}
