@@ -753,7 +753,7 @@ function AICoachModule() {
     setLoading(true);
     try {
       const history = [...messages, { role: "user", content: userMsg }].map(m => ({ role: m.role, content: m.content }));
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
