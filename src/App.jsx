@@ -782,7 +782,7 @@ Keep responses focused — users are on mobile. Use short paragraphs and occasio
         }),
       });
       const data = await response.json();
-      const text = data.content?.map(b => b.text || "").join("") || "Sorry, I couldn't get a response. Please try again.";
+      const text = data.content?.map(b => b.text || "").join("") || data.error?.message || JSON.stringify(data);
       setMessages(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
