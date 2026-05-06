@@ -757,7 +757,7 @@ function AICoachModule() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-5-20250929",
           max_tokens: 1000,
           system: `You are a warm, encouraging careers coach specialising in helping young people (aged 16-19) secure customer service apprenticeships in UK local authorities (councils).
 
