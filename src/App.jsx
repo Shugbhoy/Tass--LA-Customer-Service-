@@ -782,7 +782,7 @@ Keep responses focused — users are on mobile. Use short paragraphs and occasio
         }),
       });
       const data = await response.json();
-      const text = data.content?.map(b => b.text || "").join("") || data.error?.message || JSON.stringify(data);
+      const text = data.content?.map(b => b.text || "").join("") || "Sorry, I couldn't get a response. Please try again.";
       setMessages(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
@@ -973,8 +973,13 @@ function WelcomeModule({ setTab }) {
   return (
     <div>
       {/* Logo on home screen — large, light theme, centred */}
-      <div style={{ display: "flex", justifyContent: "center", padding: "28px 0 24px" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "28px 0 16px" }}>
         <TASSLogo size="lg" theme="light" />
+        <a href="https://theapprenticeshipsuccesssystem.co.uk"
+          style={{display:"flex",alignItems:"center",gap:6,textDecoration:"none",background:"#0D1B3E",border:"none",borderRadius:99,padding:"6px 16px"}}>
+          <span style={{fontSize:12}}>🏠</span>
+          <span style={{color:"#fff",fontSize:11,fontWeight:700,letterSpacing:"0.05em"}}>All Modules</span>
+        </a>
       </div>
 
       <div style={{ background: "#F0F8FF", borderRadius: 14, padding: "14px 16px", marginBottom: 20, borderLeft: `3px solid ${TEAL}` }}>
@@ -1219,6 +1224,11 @@ export default function App() {
             <div style={{ color: "#fff", fontWeight: 700, fontSize: 14, lineHeight: 1 }}>Local Authority · Customer Service</div>
             <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, marginTop: 2 }}>{mod?.label.replace(/^.\s/, "")}</div>
           </div>
+          <a href="https://theapprenticeshipsuccesssystem.co.uk" 
+            style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,textDecoration:"none",flexShrink:0,opacity:0.75,padding:"4px 6px",borderRadius:8,border:"1px solid rgba(255,255,255,0.15)"}}>
+            <span style={{fontSize:14}}>🏠</span>
+            <span style={{color:"rgba(255,255,255,0.8)",fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:0.5,whiteSpace:"nowrap"}}>All Modules</span>
+          </a>
         </div>
       )}
 
